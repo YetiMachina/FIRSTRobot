@@ -86,17 +86,17 @@ public class MecanumClawTeleOp extends LinearOpMode {
     If you'd like it to move further, increase that number. If you'd like it to not move
     as far from the starting position, decrease it. */
 
-    final double ARM_COLLAPSED_INTO_ROBOT  = 0;
-    final double ARM_COLLECT               = 0;
-    final double ARM_CLEAR_BARRIER         = -20 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SPECIMEN        = -100 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLAPSED_INTO_ROBOT  = -20 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT               = -20 * ARM_TICKS_PER_DEGREE;
+    final double ARM_CLEAR_BARRIER         = -30 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SCORE_SPECIMEN        = -66 * ARM_TICKS_PER_DEGREE;
     final double ARM_SCORE_SAMPLE_IN_LOW   = -100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_ATTACH_HANGING_HOOK   = -135 * ARM_TICKS_PER_DEGREE;
+    final double ARM_ATTACH_HANGING_HOOK   = -155 * ARM_TICKS_PER_DEGREE;
     final double ARM_WINCH_ROBOT           = -15  * ARM_TICKS_PER_DEGREE;
 
     /* Variables to store the speed the intake servo should be set at to intake, and deposit game elements. */
     final double INTAKE_CLAMP   =  1.0;
-    final double INTAKE_OPEN    =  0.7;
+    final double INTAKE_OPEN    =  0.85;
     final double INTAKE_CLOSED  =  1.0;
 
     /* Variables to store the positions that the wrist should be set to when folding in, or folding out. */
@@ -104,7 +104,7 @@ public class MecanumClawTeleOp extends LinearOpMode {
     final double WRIST_FOLDED_OUT  = 0.7175;
 
     /* A number in degrees that the triggers can adjust the arm position by */
-    final double FUDGE_FACTOR = 15 * ARM_TICKS_PER_DEGREE;
+    final double FUDGE_FACTOR = 17 * ARM_TICKS_PER_DEGREE;
 
     /* Variables that are used to set the arm to a specific position */
     double armPosition = (int)ARM_COLLAPSED_INTO_ROBOT;
@@ -121,9 +121,6 @@ public class MecanumClawTeleOp extends LinearOpMode {
         double xr;
         double maxFront;
         double maxBack;
-        
-        double duration = 4500;
-        double startTime;
 
 
         /* Define and Initialize Motors */
@@ -279,16 +276,7 @@ public class MecanumClawTeleOp extends LinearOpMode {
                 else if (gamepad1.y){
                     /* This is the correct height to score the sample in the LOW BASKET */
                     armPosition = ARM_SCORE_SAMPLE_IN_LOW;
-                    armMotor.setTargetPosition((int) (armPosition + armPositionFudgeFactor));
                     wrist.setPosition(WRIST_FOLDED_OUT);
-                    startTime = System.currentTimeMillis();
-                    while(System.currentTimeMillis() - startTime < 500) {
-                        
-                    }
-                    startTime = System.currentTimeMillis();
-                    while (System.currentTimeMillis() - startTime < duration){
-                        theBitThatExtends.setPower(1.0);
-                    }
                 }
 
                 else if (gamepad1.dpad_left) {
@@ -302,7 +290,7 @@ public class MecanumClawTeleOp extends LinearOpMode {
                 else if (gamepad1.dpad_right){
                     /* This is the correct height to score SPECIMEN on the HIGH CHAMBER */
                     armPosition = ARM_SCORE_SPECIMEN;
-                    wrist.setPosition(WRIST_FOLDED_IN);
+                    wrist.setPosition(WRIST_FOLDED_OUT);
                     intake.setPosition(INTAKE_CLOSED);
                 }
 

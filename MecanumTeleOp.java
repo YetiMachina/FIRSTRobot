@@ -113,7 +113,7 @@ public class MecanumTeleOp extends LinearOpMode {
     final double ARM_CLEAR_BARRIER         = -20 * ARM_TICKS_PER_DEGREE;
     final double ARM_SCORE_SPECIMEN        = -100 * ARM_TICKS_PER_DEGREE;
     final double ARM_SCORE_SAMPLE_IN_LOW   = -105 * ARM_TICKS_PER_DEGREE;
-    final double ARM_ATTACH_HANGING_HOOK   = -135 * ARM_TICKS_PER_DEGREE;
+    final double ARM_ATTACH_HANGING_HOOK   = -155 * ARM_TICKS_PER_DEGREE;
     final double ARM_WINCH_ROBOT           = -15  * ARM_TICKS_PER_DEGREE;
 
     /* Variables to store the speed the intake servo should be set at to intake, and deposit game elements. */

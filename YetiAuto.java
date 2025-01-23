@@ -78,7 +78,7 @@ public class YetiAuto extends LinearOpMode {
     public DcMotor  leftFrontDrive  = null; //the left front drivetrain motor
     public DcMotor rightFrontDrive = null; //the right front drivetrain motor, controller in servo port
     public DcMotor  armMotor    = null; //the arm motor
-    public CRServo  intake      = null; //the active intake servo
+    public Servo  intake      = null; //the active intake servo
     public Servo    wrist       = null;
     public CRServo theBitThatExtends = null;
 
@@ -112,22 +112,21 @@ public class YetiAuto extends LinearOpMode {
     final double ARM_COLLAPSED_INTO_ROBOT  = 0;
     final double ARM_COLLECT               = 0;
     final double ARM_CLEAR_BARRIER         = -20 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SPECIMEN        = -100 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SCORE_SPECIMEN        = -66 * ARM_TICKS_PER_DEGREE;
     final double ARM_SCORE_SAMPLE_IN_LOW   = -105 * ARM_TICKS_PER_DEGREE;
     final double ARM_ATTACH_HANGING_HOOK   = -136 * ARM_TICKS_PER_DEGREE;
     final double ARM_WINCH_ROBOT           = -15  * ARM_TICKS_PER_DEGREE;
 
     /* Variables to store the speed the intake servo should be set at to intake, and deposit game elements. */
-    final double INTAKE_COLLECT    = -1.0;
-    final double INTAKE_OFF        =  0.0;
-    final double INTAKE_DEPOSIT    =  0.5;
+    final double INTAKE_CLAMP   =  1.0;
+    final double INTAKE_OPEN    =  0.85;
 
     /* Variables to store the positions that the wrist should be set to when folding in, or folding out. */
-    final double WRIST_FOLDED_IN   = 0.855;
-    final double WRIST_FOLDED_OUT  = 0.5275;
+    final double WRIST_FOLDED_IN   = 1.0;
+    final double WRIST_FOLDED_OUT  = 0.7175;
 
     /* A number in degrees that the triggers can adjust the arm position by */
-    final double FUDGE_FACTOR = 15 * ARM_TICKS_PER_DEGREE;
+    final double FUDGE_FACTOR = 17 * ARM_TICKS_PER_DEGREE;
 
     /* Variables that are used to set the arm to a specific position */
     double armPosition = (int)ARM_COLLAPSED_INTO_ROBOT;
@@ -146,7 +145,6 @@ public class YetiAuto extends LinearOpMode {
         double maxBack;
         
         ElapsedTime runtime;
-
 
         /* Define and Initialize Motors */
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "leftFDrive"); //the left drivetrain motor
@@ -180,18 +178,18 @@ public class YetiAuto extends LinearOpMode {
         /* Before starting the armMotor. We'll make sure the TargetPosition is set to 0.
         Then we'll set the RunMode to RUN_TO_POSITION. And we'll ask it to stop and reset encoder.
         If you do not have the encoder plugged into this motor, it will not run in this code. */
-        armMotor.setTargetPosition(0);
+        armMotor.setTargetPosition((int)(-20 * ARM_TICKS_PER_DEGREE));
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
         /* Define and initialize servos.*/
-        intake = hardwareMap.get(CRServo.class, "intake");
+        intake = hardwareMap.get(Servo.class, "intake");
         theBitThatExtends = hardwareMap.get(CRServo.class, "extendo");
         wrist  = hardwareMap.get(Servo.class, "wrist");
 
         /* Make sure that the intake is off, and the wrist is folded in. */
-        intake.setPower(INTAKE_OFF);
+        intake.setPosition(INTAKE_CLAMP);
         theBitThatExtends.setPower(0.0);
         
         wrist.setPosition(WRIST_FOLDED_IN);
@@ -202,36 +200,75 @@ public class YetiAuto extends LinearOpMode {
 
         /* Wait for the game driver to press play */
         waitForStart();
+        
+        armMotor.setTargetPosition((int)ARM_SCORE_SPECIMEN);
+        ((DcMotorEx) armMotor).setVelocity(2100);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wrist.setPosition(WRIST_FOLDED_OUT);
 
-        /* Run until the driver presses stop */
-        while (opModeIsActive() && runtime.seconds() < 30) {
-            //armMotor.setTargetPosition((int)ARM_SCORE_SPECIMEN);
-            //wrist.setPosition(WRIST_FOLDED_OUT);
-            
-            while (runtime.seconds() <= 5){
-                leftFrontDrive.setPower(0.2);
-                rightFrontDrive.setPower(0.1);
-                leftBackDrive.setPower(-0.2);
-                rightBackDrive.setPower(-0.1);
+        while (opModeIsActive() && runtime.seconds() < 25) {
+            armMotor.setTargetPosition((int)ARM_SCORE_SPECIMEN);
+            ((DcMotorEx) armMotor).setVelocity(2100);
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            wrist.setPosition(WRIST_FOLDED_OUT);
+            while (runtime.seconds() <= 3 && runtime.seconds() > 2){
+                leftFrontDrive.setPower(0.4);
+                rightFrontDrive.setPower(-0.4);
+                leftBackDrive.setPower(0.4);
+                rightBackDrive.setPower(-0.4);
             }
-            
-            /*while (runtime.seconds() > 5 && runtime.seconds() < 6){
-                leftFrontDrive.setPower(-0.1);
-                rightFrontDrive.setPower(-0.1);
-                leftBackDrive.setPower(-0.1);
-                rightBackDrive.setPower(-0.1);
-            }*/
-            
-            /*leftFrontDrive.setPower(-0.3);
-            rightFrontDrive.setPower(-0.3);
-            leftBackDrive.setPower(0.3);
-            rightBackDrive.setPower(0.3);*/
+            leftFrontDrive.setPower(0.0);
+            rightFrontDrive.setPower(-0.0);
+            leftBackDrive.setPower(0.0);
+            rightBackDrive.setPower(-0.0);
+            while (runtime.seconds() <= 5 && runtime.seconds() > 3) {
+                armMotor.setTargetPosition((int) (ARM_SCORE_SPECIMEN + FUDGE_FACTOR));
+                ((DcMotorEx) armMotor).setVelocity(2100);
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            while (runtime.seconds() <= 7 && runtime.seconds() > 5) {
+                intake.setPosition(INTAKE_OPEN);
+            }
+            while (runtime.seconds() <= 8 && runtime.seconds() > 7) {
+                leftFrontDrive.setPower(-0.4);
+                rightFrontDrive.setPower(0.4);
+                leftBackDrive.setPower(-0.4);
+                rightBackDrive.setPower(0.4);
+            }
+            leftFrontDrive.setPower(0.0);
+            rightFrontDrive.setPower(-0.0);
+            leftBackDrive.setPower(0.0);
+            rightBackDrive.setPower(-0.0);
+            while (runtime.seconds() <= 10 && runtime.seconds() > 8) {
+                wrist.setPosition(WRIST_FOLDED_IN);
+                intake.setPosition(INTAKE_CLAMP);
+                armMotor.setTargetPosition((int)(-10 * ARM_TICKS_PER_DEGREE));
+                ((DcMotorEx) armMotor).setVelocity(2100);
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            while (runtime.seconds() <= 12 && runtime.seconds() > 10) {
+                leftFrontDrive.setPower(-0.6);
+                rightFrontDrive.setPower(-0.9);
+                leftBackDrive.setPower(0.6);
+                rightBackDrive.setPower(0.3);
+            }
+            leftFrontDrive.setPower(0.0);
+            rightFrontDrive.setPower(-0.0);
+            leftBackDrive.setPower(0.0);
+            rightBackDrive.setPower(-0.0);
+            while (runtime.seconds() < 25 && runtime.seconds() > 12) {
+                armMotor.setTargetPosition((int)(-10 * ARM_TICKS_PER_DEGREE));
+                ((DcMotorEx) armMotor).setVelocity(2100);
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                wrist.setPosition(WRIST_FOLDED_IN);
+                intake.setPosition(INTAKE_CLAMP);
+            }
             
             /* send telemetry to the driver of the arm's current position and target position */
             telemetry.addData("Runtime: ", runtime.seconds());
-            telemetry.addData("armTarget: ", armMotor.getTargetPosition());
-            telemetry.addData("arm Encoder: ", armMotor.getCurrentPosition());
-            telemetry.addData("Intake power: ", intake.getPower());
+            telemetry.addData("Arm Target: ", armMotor.getTargetPosition());
+            telemetry.addData("Arm Current: ", armMotor.getCurrentPosition());
+            telemetry.addData("Intake Status: ", intake.getPosition());
             telemetry.update();
         }
     }
